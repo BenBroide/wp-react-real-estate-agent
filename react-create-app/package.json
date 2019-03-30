@@ -1,0 +1,35 @@
+{
+  "name": "wp-react-real-estate-agent",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "react": "^16.8.6",
+    "react-chat-widget": "^2.1.4-1",
+    "react-dom": "^16.8.6",
+    "react-scripts": "2.1.8",
+    "rewire": "^4.0.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "node ./scripts/build-non-split.js",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "watch": "npm-watch"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "watch": {
+    "build": "src/"
+  },
+  "devDependencies": {
+    "npm-watch": "^0.6.0",
+    "react-app-rewired": "^2.1.1"
+  }
+}
