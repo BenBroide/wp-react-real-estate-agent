@@ -17,7 +17,9 @@ function WREA_print_react_root_div(){ ?>
 		.rcw-conversation-container > .rcw-header {
 			/*background-color: red;*/
 		}
-
+        .rcw-full-screen .rcw-conversation-container {
+            margin-bottom: 130px;
+        }
 		.rcw-message > .rcw-response {
 			background-color: black;
 			color: white;
@@ -30,6 +32,21 @@ function WREA_print_react_root_div(){ ?>
         .rcw-send {
             padding: inherit;
         }
+        @media screen and (min-width: 1000px) {
+            .rcw-full-screen.rcw-opened {
+                height: 100%;
+                width: 30%;
+            }
+        }
+        .rwre-toggle-button {
+            margin: 25px;
+            right: 0;
+            bottom: 0;
+            position: absolute;
+            max-width: 100px;
+            border-radius: 75px;
+        }
+
 
 	</style>
 	<div id="root"></div>
