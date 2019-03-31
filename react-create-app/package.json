@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "material-icons-react": "^1.0.4",
+    "npm": "^6.9.0",
     "react": "^16.8.6",
     "react-chat-widget": "^2.1.4-1",
     "react-dom": "^16.8.6",
