@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import { Widget , toggleWidget, addResponseMessage, setQuickButtons, renderCustomComponent } from 'react-chat-widget';
-import Button from '@material-ui/core/Button';
+import { Widget , toggleWidget, addResponseMessage, renderCustomComponent } from 'react-chat-widget';
+
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import 'react-chat-widget/lib/styles.css';
 import Fab from '@material-ui/core/Fab';
-import Icon from '@material-ui/core/Icon';
+
 import TextField from '@material-ui/core/TextField';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -21,15 +21,14 @@ const data = { categories : ['Studio', '1 Bedroom', '2 Bedroom', '3 Bedroom', '4
 
 
 class botDatesResponse extends Component {
-    constructor(){
-        super();
-        this.state = { dates : { startDate : '', endDate : '' }, renderedNext : false, defaultStart: '', defaultEnd : '' } ;
+    constructor( props ){
+        super(props );
+        this.state = { dates : { startDate : '', endDate : '' }, renderedNext : false, defaultStart: '', defaultEnd : '', selections : props.selections } ;
     }
 
     componentWillMount() {
         var today = new Date();
         var firstDayOfNextMonth = new Date(today.getFullYear(), today.getMonth()+1, 1).toISOString().split('T')[0];
-        var dateIn12Month = new Date(today.getFullYear(), today.getMonth()+13, 0).toISOString().split('T')[0];
 
         this.setState( {
             dates : { startDate : firstDayOfNextMonth, endDate: '' }
@@ -37,39 +36,41 @@ class botDatesResponse extends Component {
     }
 
     updateInquiry = ( event ) => {
-        console.log( event );
-        this.setState({ dates :  { startDate : event.val } })
+        
+        let selections = this.state.selections;
+        if( typeof  selections['dates'] ==="undefined"){
+            selections['dates'] = {};
+        } else {
+            selections.dates = this.state.dates;
+        }
+
+        this.setState({ dates :  { endDate : event.val } })
+
         if( !this.state.renderedNext ){
             addResponseMessage( '3 Results found');
-            renderCustomComponent( ListingsList );
-            this.setState( { renderedNext : true });
+            renderCustomComponent( ListingsList, { selections : selections} );
         }
     }
 
-    render() {
+    dateField = ( label, defaultValue, callback ) => {
+        return <TextField
+            id="date"
+            label={label}
+            type="date"
+            defaultValue={defaultValue}
+            InputLabelProps={{
+                shrink: true,
+            }}
+            onChange={ callback }
+        />
+    }
 
+    render() {
         return (
             <div>
                 <form  noValidate>
-                <TextField
-                    id="date"
-                    label="Start Date"
-                    type="date"
-                    defaultValue={this.state.dates.startDate}
-                    InputLabelProps={{
-                        shrink: true,
-                    }}
-                />
-                    <TextField
-                        id="date"
-                        label="End Date"
-                        type="date"
-                        onChange={ (event) => this.updateInquiry(event )}
-                        defaultValue={this.state.dates.endDate}
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                    />
+                    {this.dateField("Start Date",this.state.dates.startDate ) }
+                    {this.dateField("End Date",this.state.dates.endDate, (event) => this.updateInquiry(event ) ) }
                 </form>
             </div>
         )
@@ -79,11 +80,9 @@ class botDatesResponse extends Component {
 class renderCheckboxes extends Component {
     constructor(props){
         super( props );
-        let selections = {};
-        Object.keys(data).map(  key => { selections[key] = []  } )
         let renderedNext = {};
         Object.keys(data).map(  key => { renderedNext[key] = false } )
-        this.state = { type : props.type ,listingCat : [], renderedNext : renderedNext , selections : selections } ;
+        this.state = { type : props.type ,listingCat : [], renderedNext : renderedNext , selections : props.selections } ;
     }
 
     getCheckboxes = ( type ) =>{
@@ -101,23 +100,21 @@ class renderCheckboxes extends Component {
             )}
     }
     updateInquiry = ( type, value ) => {
-
         let selections = this.state.selections;
         selections[type].push(value);
         this.setState({ selections : selections })
         if( !this.state.renderedNext[type] ){
             addResponseMessage(`Please select ${type}. You can still modify the apartment size you want.`);
             if( type === 'areas'){
-                renderCustomComponent(botDatesResponse);
+                renderCustomComponent(botDatesResponse, {selections : this.state.selections});
             } else {
-                renderCustomComponent( renderCheckboxes,  { type : type ==='categories' ? 'amenities' : 'areas' } );
+                renderCustomComponent( renderCheckboxes,  { type : type ==='categories' ? 'amenities' : 'areas' , selections : this.state.selections } );
             }
             this.setState( { renderedNext : {[type] : true} });
         }
     }
 
     render() {
-
         return (
             <div>
                 <FormGroup row>
@@ -130,17 +127,22 @@ class renderCheckboxes extends Component {
 
 
 class ListingsList extends Component {
-    constructor(){
-        super();
-
+    constructor(props){
+        super(props);
+        this.state = {selections : props.selections }
+        console.log(this.state);
     }
 
     handleToggleListing = listing => () => {
+        let selections = this.state.selections;
+        if(typeof selections['listings'] =='undefined'){
+            selections['listings'] = [];
+        }
+        selections['listings'].push(listing);;
+        this.setState({
+             selections: selections
+        });
 
-        console.log( listing );
-        // this.setState({
-        //     checked: newChecked,
-        // });
     };
 
     render() {
@@ -206,15 +208,15 @@ class App extends Component {
     }
 
     handleNewUserMessage = (newMessage) => {
-        renderCustomComponent( renderCheckboxes, { type : 'categories' } );
-        // Now send the message throught the backend API
-    }
+        }
 
 
     componentDidMount() {
         toggleWidget();
         addResponseMessage("Hi! Which apartment are you looking for?");
-        renderCustomComponent( renderCheckboxes, { type : 'categories' } );
+        let selections = {};
+        Object.keys(data).map(  key => { selections[key] = []  } );
+        renderCustomComponent( renderCheckboxes, { type : 'categories',selections : selections } );
         //renderCustomComponent( ListingsList );
 
     }
