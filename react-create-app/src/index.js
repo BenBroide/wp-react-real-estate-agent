@@ -8,7 +8,6 @@ import {Action, createStore} from 'redux';
 
 import { Provider } from 'react-redux'
 import counter from './reducer'
-import Counter from './components/Counter'
 
 
 ReactDOM.render(
