@@ -1,8 +1,7 @@
-import React, {useEffect, useState } from 'react';
+import React, {useEffect } from 'react';
 import {Widget, toggleWidget, addResponseMessage, renderCustomComponent} from 'react-chat-widget';
 import CheckboxesResponse from './components/CheckboxesResponse'
 import 'react-chat-widget/lib/styles.css';
-import {update} from "./actions";
 import {connect} from "react-redux";
 
 var data;
