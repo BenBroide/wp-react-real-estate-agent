@@ -34,11 +34,15 @@ const App = ( {selections }) => {
             'selections': selections,
             'message' : newMessage
         };
+        if( typeof window.jQuery !== 'undefined'){
+            window.jQuery.post(bot_data.ajax_url, data, (response) => {
+                let jsonResponse = JSON.parse( response );
+                selections.post_id = jsonResponse.post_id;
+            });
+        } else {
+            alert(JSON.stringify(data));
+        }
 
-        window.jQuery.post(bot_data.ajax_url, data, (response) => {
-            let jsonResponse = JSON.parse( response );
-            selections.post_id = jsonResponse.post_id;
-        });
 
     }
 
