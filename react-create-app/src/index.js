@@ -1,18 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {StoreContext} from 'redux-react-hook';
+//import {StoreContext} from 'redux-react-hook';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import {Action, createStore} from 'redux';
-import {makeStore} from './Store';
+import { createStore} from 'redux';
 import { Provider } from 'react-redux'
-import counter from './reducer'
-import Counter from './components/Counter'
+import reducer from './reducer'
 
 
 ReactDOM.render(
-    <Provider store={createStore(counter)}>
+    <Provider store={createStore(reducer)}>
         <App />
     </Provider>,
     document.getElementById('root'));

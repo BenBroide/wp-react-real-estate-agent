@@ -30,11 +30,6 @@ const App = ( {selections}) => {
 
     useEffect(() => {
             toggleWidget();
-            let data = {
-                categories: ['Studio', '1 Bedroom', '2 Bedroom', '3 Bedroom', '4 Bedroom'],
-                amenities: ['Rooftop', 'Doorman', 'Elevator', 'Laundry', 'TV', 'Gym', 'AC', 'Wifi', 'Balcony'],
-                areas: ['Downtown', 'Midtown', 'East Village', 'Show', 'Upper East', 'Upper West']
-            };
 
             addResponseMessage(`Please select categories.`);
             renderCustomComponent(CheckboxesResponse, {type: 'categories', selections: selections, data: data});

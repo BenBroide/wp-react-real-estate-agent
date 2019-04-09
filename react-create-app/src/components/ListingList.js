@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Widget, toggleWidget, addResponseMessage, renderCustomComponent} from 'react-chat-widget';
+import { addResponseMessage} from 'react-chat-widget';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
