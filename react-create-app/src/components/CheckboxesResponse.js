@@ -38,6 +38,7 @@ class CheckboxesResponse extends Component {
         console.log(selections);
         selections[type].push(value);
         this.setState({ selections : selections })
+        this.nextStep();
     }
 
     nextStep = ( ) => {
@@ -64,9 +65,9 @@ class CheckboxesResponse extends Component {
                 <FormGroup row>
                     {this.getCheckboxes( this.state.type  )}
                 </FormGroup>
-                {this.state.showButton &&
-                <CompleteSelectionButton callback={this.nextStep}/>
-                }
+                {/*{this.state.showButton &&*/}
+                {/*/!*<CompleteSelectionButton callback={this.nextStep}/>*!/*/}
+                {/*}*/}
             </div>
         )
     }

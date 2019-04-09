@@ -1,31 +1,45 @@
-import React, {useEffect} from 'react';
+import React, {useEffect } from 'react';
 import {Widget, toggleWidget, addResponseMessage, renderCustomComponent} from 'react-chat-widget';
 import CheckboxesResponse from './components/CheckboxesResponse'
 import 'react-chat-widget/lib/styles.css';
-import {update} from "./actions";
 import {connect} from "react-redux";
 
-var data = {
-    categories: ['Studio', '1 Bedroom', '2 Bedroom', '3 Bedroom', '4 Bedroom'],
-    amenities: ['Rooftop', 'Doorman', 'Elevator', 'Laundry', 'TV', 'Gym', 'AC', 'Wifi', 'Balcony'],
-    areas: ['Downtown', 'Midtown', 'East Village', 'Show', 'Upper East', 'Upper West']
-};
+var data;
+if( typeof window.bot_data !== 'undefined' ){
+    var bot_data = window.bot_data;
+    const categories = bot_data.listing_category.map( category => category.name );
+    const amenities = bot_data.amenities.map( category => category.name );
+    const areas =  bot_data.area.map( category => category.name );
+    data = {
+        categories: categories,
+        amenities: amenities,
+        areas: areas
+    };
+} else {
+    data = {
+        categories: ['Studio', '1 Bedroom', '2 Bedroom', '3 Bedroom', '4 Bedroom'],
+        amenities: ['Rooftop', 'Doorman', 'Elevator', 'Laundry', 'TV', 'Gym', 'AC', 'Wifi', 'Balcony'],
+        areas: ['Downtown', 'Midtown', 'East Village', 'Show', 'Upper East', 'Upper West']
+    };
 
-// var bot_data = window.bot_data;
-// const categories = bot_data.listing_category.map( category => category.name );
-// const amenities = bot_data.amenities.map( category => category.name );
-// const areas =  bot_data.area.map( category => category.name );
-//
-// const data = {
-//     categories: categories,
-//     amenities: amenities,
-//     areas: areas
-// };
+}
 
-const App = ( {selections}) => {
+
+
+const App = ( {selections }) => {
+
     const handleNewUserMessage = (newMessage) => {
-        console.log(newMessage);
-        console.log(selections);
+        var data = {
+            'action': 'get_lead',
+            'selections': selections,
+            'message' : newMessage
+        };
+
+        window.jQuery.post(bot_data.ajax_url, data, (response) => {
+            let jsonResponse = JSON.parse( response );
+            selections.post_id = jsonResponse.post_id;
+        });
+
     }
 
     useEffect(() => {
@@ -52,20 +66,19 @@ const App = ( {selections}) => {
 
 const mapStateToProps = (state) => {
     return {
-        selections: state.selections
+        selections: state.selections,
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        onUpdate: () => {
-            dispatch(update())
-        }
-    }
-}
+// const mapDispatchToProps = (dispatch) => {
+//     return {
+//         onUpdate: () => {
+//             dispatch(update())
+//         }
+//     }
+// }
 export default connect(
-    mapStateToProps,
-    mapDispatchToProps
+    mapStateToProps
 )(App)
 
 

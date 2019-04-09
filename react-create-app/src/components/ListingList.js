@@ -24,7 +24,7 @@ const ListingList = ({ data, selections}) => {
 
     const nextStep = () => {
         console.log(selections);
-        addResponseMessage('Please leave Name, phone end email which you would like as to reach you');
+        addResponseMessage('Please leave Name, phone and email and anything else you want us to know about the apartment');
     }
 
     return (
