@@ -82,9 +82,10 @@ function RWRE_enqueue_scripts_styles() {
 
 	wp_localize_script( 'some_handle', 'bot_data',
 		[
-			'listing_category' => get_terms( [ 'hide_empty' => false, 'taxonomy'=>'listing_category'   ] ),
-			'amenities'        => get_terms( [ 'hide_empty' => false, 'taxonomy'=>'amenities'   ] ),
-			'area'             => get_terms( [ 'hide_empty' => false , 'taxonomy'  => 'area'] )
+			'listing_category' => get_terms( [ 'hide_empty' => false, 'taxonomy' => 'listing_category' ] ),
+			'amenities'        => get_terms( [ 'hide_empty' => false, 'taxonomy' => 'amenities' ] ),
+			'area'             => get_terms( [ 'hide_empty' => false, 'taxonomy' => 'area' ] ),
+			'ajax_url'         => admin_url( 'admin-ajax.php' )
 		]
 	);
 
@@ -98,11 +99,64 @@ function remove_unwanted_css() {
 	wp_dequeue_style( 'twentynineteen-style' );
 	wp_deregister_style( 'twentynineteen-style' );
 
-	//wp_dequeue_style( 'bootstrap-custom' );
-	//wp_deregister_style( 'bootstrap-custom' );
 }
 
 add_action( 'wp_enqueue_scripts', 'remove_unwanted_css', 20 );
+
+// Register Custom Post Type
+function lead_post_type() {
+
+	$labels = array(
+		'name'                  => _x( 'Leads', 'Post Type General Name', 'text_domain' ),
+		'singular_name'         => _x( 'Lead', 'Post Type Singular Name', 'text_domain' ),
+		'menu_name'             => __( 'Leads', 'text_domain' ),
+		'name_admin_bar'        => __( 'Lead', 'text_domain' ),
+		'archives'              => __( 'Item Archives', 'text_domain' ),
+		'attributes'            => __( 'Item Attributes', 'text_domain' ),
+		'parent_item_colon'     => __( 'Parent Item:', 'text_domain' ),
+		'all_items'             => __( 'All Items', 'text_domain' ),
+		'add_new_item'          => __( 'Add New Item', 'text_domain' ),
+		'add_new'               => __( 'Add New', 'text_domain' ),
+		'new_item'              => __( 'New Item', 'text_domain' ),
+		'edit_item'             => __( 'Edit Item', 'text_domain' ),
+		'update_item'           => __( 'Update Item', 'text_domain' ),
+		'view_item'             => __( 'View Item', 'text_domain' ),
+		'view_items'            => __( 'View Items', 'text_domain' ),
+		'search_items'          => __( 'Search Item', 'text_domain' ),
+		'not_found'             => __( 'Not found', 'text_domain' ),
+		'not_found_in_trash'    => __( 'Not found in Trash', 'text_domain' ),
+		'featured_image'        => __( 'Featured Image', 'text_domain' ),
+		'set_featured_image'    => __( 'Set featured image', 'text_domain' ),
+		'remove_featured_image' => __( 'Remove featured image', 'text_domain' ),
+		'use_featured_image'    => __( 'Use as featured image', 'text_domain' ),
+		'insert_into_item'      => __( 'Insert into item', 'text_domain' ),
+		'uploaded_to_this_item' => __( 'Uploaded to this item', 'text_domain' ),
+		'items_list'            => __( 'Items list', 'text_domain' ),
+		'items_list_navigation' => __( 'Items list navigation', 'text_domain' ),
+		'filter_items_list'     => __( 'Filter items list', 'text_domain' ),
+	);
+	$args   = array(
+		'label'               => __( 'Lead', 'text_domain' ),
+		'description'         => __( 'Post Type Description', 'text_domain' ),
+		'labels'              => $labels,
+		'supports'            => array( 'title' ),
+		//'taxonomies'          => array( 'category', 'post_tag' ),
+		'hierarchical'        => false,
+		'public'              => true,
+		'show_ui'             => true,
+		'show_in_menu'        => true,
+		'menu_position'       => 5,
+		'show_in_admin_bar'   => true,
+		'show_in_nav_menus'   => true,
+		'can_export'          => true,
+		'has_archive'         => true,
+		'exclude_from_search' => false,
+		'publicly_queryable'  => true,
+		'capability_type'     => 'page',
+	);
+	register_post_type( 'lead', $args );
+
+}
 
 // Register Custom Post Type
 function listing_post_type() {
@@ -161,10 +215,9 @@ function listing_post_type() {
 
 add_action( 'init', 'listing_post_type', 0 );
 
+add_action( 'init', 'lead_post_type', 0 );
 
 
-
-add_action( 'init', 'create_custom_tax' );
 
 function create_custom_tax() {
 
@@ -194,4 +247,68 @@ function create_custom_tax() {
 			'rewrite' => array( 'slug' => 'amenities' )
 		)
 	);
+}
+
+add_action( 'init', 'create_custom_tax' );
+
+function get_lead() {
+	$selections = $_POST['selections'];
+    $message              = $_POST['message'];;
+    $listing_categories =implode( ',', $selections['categories'] ) ;
+	$amenities =implode( ',', $selections['amenities'] ) ;
+	$areas =implode( ',', $selections['areas'] ) ;
+	if( $selections['post_id'] > 0 ){
+	    $post_id = $selections['post_id'];
+	    $pre_message = carbon_get_post_meta( $post_id, 'message' );
+	    $updated_message = $pre_message . PHP_EOL . $message;
+		carbon_set_post_meta( $post_id, 'message',  $updated_message );
+    } else {
+		$post_id = wp_insert_post( [ 'post_type'    => 'lead',
+		                             'post_title'   => substr( $message, 0, 40 ),
+		                             'post_content' => $message
+		] );
+		carbon_set_post_meta( $post_id, 'message',  $message );
+	}
+    carbon_set_post_meta( $post_id, 'listing_categories', $listing_categories);
+	carbon_set_post_meta( $post_id, 'amenities', $amenities);
+	carbon_set_post_meta( $post_id, 'areas', $areas );
+	carbon_set_post_meta( $post_id, 'start_date', $selections['dates']['startDate'] );
+	carbon_set_post_meta( $post_id, 'end_date', $selections['dates']['endDate'] );
+
+    echo json_encode( ['post_id' => $post_id ] );
+
+	wp_die();
+}
+
+add_action( 'wp_ajax_get_lead', 'get_lead' );
+add_action( 'wp_ajax_nopriv_get_lead', 'get_lead' );
+
+// Install carbon fields composer require htmlburger/carbon-fields
+
+use Carbon_Fields\Container;
+use Carbon_Fields\Field;
+
+add_action( 'carbon_fields_register_fields', 'crb_attach_theme_options' );
+function crb_attach_theme_options() {
+//	Container::make( 'theme_options', __( 'Theme Options', 'crb' ) )
+//	         ->add_fields( array(
+//		         Field::make( 'text', 'crb_text', 'Text Field' ),
+//	         ) );
+	Container::make( 'post_meta', 'Lead Data' )
+	         ->where( 'post_type', '=', 'lead' )
+	         ->add_fields( array(
+		         Field::make( 'textarea', 'message' ),
+		         Field::make( 'text', 'listing_categories' )->set_width(33),
+		         Field::make( 'text', 'amenities' )->set_width(33),
+		         Field::make( 'text', 'areas' )->set_width(33),
+		         Field::make( 'date', 'start_date' )->set_width(50),
+		         Field::make( 'date', 'end_date' )->set_width(50),
+
+	         ));
+}
+
+add_action( 'after_setup_theme', 'crb_load' );
+function crb_load() {
+	require_once( ABSPATH . '/vendor/autoload.php' );
+	\Carbon_Fields\Carbon_Fields::boot();
 }
