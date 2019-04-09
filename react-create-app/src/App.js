@@ -34,14 +34,12 @@ const App = ( {selections }) => {
             'selections': selections,
             'message' : newMessage
         };
-        console.log(selections);
-        console.log('------');
+
         window.jQuery.post(bot_data.ajax_url, data, (response) => {
             let jsonResponse = JSON.parse( response );
             selections.post_id = jsonResponse.post_id;
-
         });
-        console.log(selections);
+
     }
 
     useEffect(() => {
