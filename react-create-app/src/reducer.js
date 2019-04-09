@@ -1,4 +1,4 @@
-export default (state = { count: 0 , selections : { categories : [], areas : [], amenities : [], listings : []}}, action) => {
+export default (state = { count: 0  , selections : { post_id : 0, categories : [], areas : [], amenities : [], listings : []}}, action) => {
     switch (action.type) {
         case 'INCREMENT':
             return {
