@@ -139,7 +139,7 @@ function lead_post_type() {
 		'label'               => __( 'Lead', 'text_domain' ),
 		'description'         => __( 'Post Type Description', 'text_domain' ),
 		'labels'              => $labels,
-		'supports'            => array( 'title' ),
+		'supports'            => array( 'title' , 'custom-fields'),
 		//'taxonomies'          => array( 'category', 'post_tag' ),
 		'hierarchical'        => false,
 		'public'              => true,
@@ -259,21 +259,21 @@ function get_lead() {
 	$areas =implode( ',', $selections['areas'] ) ;
 	if( $selections['post_id'] > 0 ){
 	    $post_id = $selections['post_id'];
-	    $pre_message = carbon_get_post_meta( $post_id, 'message' );
+	    $pre_message = get_post_meta( $post_id, 'message' );
 	    $updated_message = $pre_message . PHP_EOL . $message;
-		carbon_set_post_meta( $post_id, 'message',  $updated_message );
+		update_post_meta( $post_id, 'message',  $updated_message );
     } else {
 		$post_id = wp_insert_post( [ 'post_type'    => 'lead',
 		                             'post_title'   => substr( $message, 0, 40 ),
 		                             'post_content' => $message
 		] );
-		carbon_set_post_meta( $post_id, 'message',  $message );
+		update_post_meta( $post_id, 'message',  $message );
 	}
-    carbon_set_post_meta( $post_id, 'listing_categories', $listing_categories);
-	carbon_set_post_meta( $post_id, 'amenities', $amenities);
-	carbon_set_post_meta( $post_id, 'areas', $areas );
-	carbon_set_post_meta( $post_id, 'start_date', $selections['dates']['startDate'] );
-	carbon_set_post_meta( $post_id, 'end_date', $selections['dates']['endDate'] );
+    update_post_meta( $post_id, 'listing_categories', $listing_categories);
+	update_post_meta( $post_id, 'amenities', $amenities);
+	update_post_meta( $post_id, 'areas', $areas );
+	update_post_meta( $post_id, 'start_date', $selections['dates']['startDate'] );
+	update_post_meta( $post_id, 'end_date', $selections['dates']['endDate'] );
 
     echo json_encode( ['post_id' => $post_id ] );
 
@@ -282,33 +282,3 @@ function get_lead() {
 
 add_action( 'wp_ajax_get_lead', 'get_lead' );
 add_action( 'wp_ajax_nopriv_get_lead', 'get_lead' );
-
-// Install carbon fields composer require htmlburger/carbon-fields
-
-use Carbon_Fields\Container;
-use Carbon_Fields\Field;
-
-add_action( 'carbon_fields_register_fields', 'crb_attach_theme_options' );
-function crb_attach_theme_options() {
-//	Container::make( 'theme_options', __( 'Theme Options', 'crb' ) )
-//	         ->add_fields( array(
-//		         Field::make( 'text', 'crb_text', 'Text Field' ),
-//	         ) );
-	Container::make( 'post_meta', 'Lead Data' )
-	         ->where( 'post_type', '=', 'lead' )
-	         ->add_fields( array(
-		         Field::make( 'textarea', 'message' ),
-		         Field::make( 'text', 'listing_categories' )->set_width(33),
-		         Field::make( 'text', 'amenities' )->set_width(33),
-		         Field::make( 'text', 'areas' )->set_width(33),
-		         Field::make( 'date', 'start_date' )->set_width(50),
-		         Field::make( 'date', 'end_date' )->set_width(50),
-
-	         ));
-}
-
-add_action( 'after_setup_theme', 'crb_load' );
-function crb_load() {
-	require_once( ABSPATH . '/vendor/autoload.php' );
-	\Carbon_Fields\Carbon_Fields::boot();
-}
