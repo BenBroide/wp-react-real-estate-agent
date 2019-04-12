@@ -10,9 +10,6 @@ clone the repo inside the plugins folder
 
 `npm run build`
 
-install carbon fields ( used for custom fields save and display)
-https://docs.carbonfields.net/#/quickstart
-
 and activate wp-react-real-estate-agent plugin from the plugins menu in your dashboard
 
 add listing taxonomies with wp cli 
