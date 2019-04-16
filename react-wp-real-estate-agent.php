@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:     React Wp Real Estate Agent
- * Plugin URI:      https://github.com
+ * Plugin URI:      https://github.com/BenBroide/wp-react-real-estate-agent
  * Description:     WordPress React Real Estate Agent
  * Author:          Ben Broide
  * Author URI:      https://benbroide.com
