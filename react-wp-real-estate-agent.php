@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:     React Wp Real Estate Agent
- * Plugin URI:      https://github.com
+ * Plugin URI:      https://github.com/BenBroide/wp-react-real-estate-agent
  * Description:     WordPress React Real Estate Agent
  * Author:          Ben Broide
  * Author URI:      https://benbroide.com
@@ -13,59 +13,6 @@
  */
 
 function WREA_print_react_root_div() { ?>
-    <style>
-        @import url('https://fonts.googleapis.com/css?family=Roboto');
-
-        .rcw-widget-container {
-            font-family: 'Roboto', sans-serif;
-        }
-
-        .rcw-conversation-container > .rcw-header {
-            /*background-color: red; */
-        }
-
-        input[type="text"].rcw-new-message {
-            font-size: 11px;
-            width: 100%;
-            border: 0;
-            background-color: #f4f7f9;
-            height: 30px;
-            padding-left: 15px;
-            font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-        }
-
-        .rcw-full-screen .rcw-conversation-container {
-            margin-bottom: 130px;
-        }
-
-        .rcw-message > .rcw-response {
-            background-color: blue;
-            color: white;
-
-        }
-
-        .rcw-send {
-            padding: inherit;
-        }
-
-        @media screen and (min-width: 1000px) {
-            .rcw-full-screen.rcw-opened {
-                height: 100%;
-                width: 30%;
-            }
-        }
-
-        .rwre-toggle-button {
-            margin: 25px;
-            right: 0;
-            bottom: 0;
-            position: absolute;
-            /*max-width: 100px;*/
-            /*border-radius: 75px;*/
-        }
-
-
-    </style>
     <div id="root"></div>
 <?php }
 
@@ -73,14 +20,14 @@ add_action( 'wp_footer', 'WREA_print_react_root_div' );
 
 function RWRE_enqueue_scripts_styles() {
 	wp_enqueue_style( 'wp-react-agent', plugin_dir_url( __FILE__ ) . 'react-create-app/build/static/css/main.css' );
+
+	wp_enqueue_style( 'override-style', plugin_dir_url( __FILE__ ) . 'assets/css/override-style.css' );
+
 	wp_enqueue_style( 'material-ui', 'https://fonts.googleapis.com/icon?family=Material+Icons' );
 
+	wp_register_script( 'wp-react-agent', plugin_dir_url( __FILE__ ) . 'react-create-app/build/static/js/main.js' );
 
-	wp_enqueue_script( 'wp-react-agent', plugin_dir_url( __FILE__ ) . 'react-create-app/build/static/js/main.js', [], '', true );
-
-	wp_register_script( 'some_handle', 'path/to/myscript.js' );
-
-	wp_localize_script( 'some_handle', 'bot_data',
+	wp_localize_script( 'wp-react-agent', 'bot_data',
 		[
 			'listing_category' => get_terms( [ 'hide_empty' => false, 'taxonomy' => 'listing_category' ] ),
 			'amenities'        => get_terms( [ 'hide_empty' => false, 'taxonomy' => 'amenities' ] ),
@@ -89,8 +36,8 @@ function RWRE_enqueue_scripts_styles() {
 		]
 	);
 
-// Enqueued script with localized data.
-	wp_enqueue_script( 'some_handle' );
+	wp_enqueue_script( 'wp-react-agent', plugin_dir_url( __FILE__ ) . 'react-create-app/build/static/js/main.js', [], '', true );
+
 }
 
 add_action( 'wp_enqueue_scripts', 'RWRE_enqueue_scripts_styles' );
