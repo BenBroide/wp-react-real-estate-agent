@@ -34,7 +34,7 @@ const ListingList = ({ data, selections}) => {
                     return <Zoom in={true} key={i}><ListItem
                         style={{maxWidth: '95%', borderRadius: '10px', margin: '10px', background: '#f4f7f9'}}
                         className={'rcw-response'} alignItems="flex-start" button>
-                        <img alt={`Listing ${i}`} style={{maxWidth: '50px'}} src="/images/listing-1.jpg"/>
+                        <img alt={`Listing ${i}`} style={{maxWidth: '50px'}} src={`${data.imagesPath}image-${i}.jpg`}/>
                         <ListItemText
                             style={{margin: '5px 0'}}
                             primary={`Listing ${i}`}
