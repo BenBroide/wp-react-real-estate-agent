@@ -1,6 +1,6 @@
 ## WP React Real Estate Bot
 
-Concept of React Create APP in a WordPress plugin.
+Concept of React Create App in a WordPress plugin.
 
 clone the repo inside the plugins folder
 
