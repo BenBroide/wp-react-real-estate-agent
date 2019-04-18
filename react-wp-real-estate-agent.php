@@ -24,7 +24,6 @@ function RWRE_enqueue_scripts_styles() {
 	wp_enqueue_style( 'override-style', plugin_dir_url( __FILE__ ) . 'assets/css/override-style.css' );
 
 	wp_enqueue_style( 'material-ui', 'https://fonts.googleapis.com/icon?family=Material+Icons' );
-
 	wp_register_script( 'wp-react-agent', plugin_dir_url( __FILE__ ) . 'react-create-app/build/static/js/main.js' );
 
 	wp_localize_script( 'wp-react-agent', 'bot_data',
@@ -32,7 +31,8 @@ function RWRE_enqueue_scripts_styles() {
 			'listing_category' => get_terms( [ 'hide_empty' => false, 'taxonomy' => 'listing_category' ] ),
 			'amenities'        => get_terms( [ 'hide_empty' => false, 'taxonomy' => 'amenities' ] ),
 			'area'             => get_terms( [ 'hide_empty' => false, 'taxonomy' => 'area' ] ),
-			'ajax_url'         => admin_url( 'admin-ajax.php' )
+			'ajax_url'         => admin_url( 'admin-ajax.php' ),
+			'images_path'      => plugin_dir_url( __FILE__ )  .'assets/images/'
 		]
 	);
 
@@ -86,7 +86,7 @@ function lead_post_type() {
 		'label'               => __( 'Lead', 'text_domain' ),
 		'description'         => __( 'Post Type Description', 'text_domain' ),
 		'labels'              => $labels,
-		'supports'            => array( 'title' , 'custom-fields'),
+		'supports'            => array( 'title', 'custom-fields' ),
 		//'taxonomies'          => array( 'category', 'post_tag' ),
 		'hierarchical'        => false,
 		'public'              => true,
@@ -165,7 +165,6 @@ add_action( 'init', 'listing_post_type', 0 );
 add_action( 'init', 'lead_post_type', 0 );
 
 
-
 function create_custom_tax() {
 
 	register_taxonomy(
@@ -199,33 +198,41 @@ function create_custom_tax() {
 add_action( 'init', 'create_custom_tax' );
 
 function get_lead() {
-	$selections = $_POST['selections'];
-    $message              = $_POST['message'];;
-    $listing_categories =implode( ',', $selections['categories'] ) ;
-	$amenities =implode( ',', $selections['amenities'] ) ;
-	$areas =implode( ',', $selections['areas'] ) ;
-	if( $selections['post_id'] > 0 ){
-	    $post_id = $selections['post_id'];
-	    $pre_message = get_post_meta( $post_id, 'message' );
-	    $updated_message = $pre_message . PHP_EOL . $message;
-		update_post_meta( $post_id, 'message',  $updated_message );
-    } else {
-		$post_id = wp_insert_post( [ 'post_type'    => 'lead',
-		                             'post_title'   => substr( $message, 0, 40 ),
-		                             'post_content' => $message
-		] );
-		update_post_meta( $post_id, 'message',  $message );
-	}
-    update_post_meta( $post_id, 'listing_categories', $listing_categories);
-	update_post_meta( $post_id, 'amenities', $amenities);
-	update_post_meta( $post_id, 'areas', $areas );
-	update_post_meta( $post_id, 'start_date', $selections['dates']['startDate'] );
-	update_post_meta( $post_id, 'end_date', $selections['dates']['endDate'] );
 
-    echo json_encode( ['post_id' => $post_id ] );
+	$post_id = RWRE_save_lead();
+
+	echo json_encode( [ 'post_id' => $post_id ] );
 
 	wp_die();
 }
 
 add_action( 'wp_ajax_get_lead', 'get_lead' );
 add_action( 'wp_ajax_nopriv_get_lead', 'get_lead' );
+
+function RWRE_save_lead() {
+	$selections = $_POST['selections'];
+	$message    = $_POST['message'];;
+	$listing_categories = implode( ',', $selections['categories'] );
+	$amenities          = implode( ',', $selections['amenities'] );
+	$areas              = implode( ',', $selections['areas'] );
+	if ( $selections['post_id'] > 0 ) {
+		$post_id         = $selections['post_id'];
+		$pre_message     = get_post_meta( $post_id, 'message' );
+		$updated_message = $pre_message . PHP_EOL . $message;
+		update_post_meta( $post_id, 'message', $updated_message );
+	} else {
+		$post_id = wp_insert_post( [
+			'post_type'    => 'lead',
+			'post_title'   => substr( $message, 0, 40 ),
+			'post_content' => $message
+		] );
+		update_post_meta( $post_id, 'message', $message );
+	}
+	update_post_meta( $post_id, 'listing_categories', $listing_categories );
+	update_post_meta( $post_id, 'amenities', $amenities );
+	update_post_meta( $post_id, 'areas', $areas );
+	update_post_meta( $post_id, 'start_date', $selections['dates']['startDate'] );
+	update_post_meta( $post_id, 'end_date', $selections['dates']['endDate'] );
+
+	return $post_id;
+}

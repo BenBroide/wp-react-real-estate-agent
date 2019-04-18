@@ -7,19 +7,23 @@ import {connect} from "react-redux";
 var data;
 if( typeof window.bot_data !== 'undefined' ){
     var bot_data = window.bot_data;
+    var data;
     const categories = bot_data.listing_category.map( category => category.name );
     const amenities = bot_data.amenities.map( category => category.name );
     const areas =  bot_data.area.map( category => category.name );
+
     data = {
         categories: categories,
         amenities: amenities,
-        areas: areas
+        areas: areas,
+        imagesPath : bot_data.images_path
     };
 } else {
     data = {
         categories: ['Studio', '1 Bedroom', '2 Bedroom', '3 Bedroom', '4 Bedroom'],
         amenities: ['Rooftop', 'Doorman', 'Elevator', 'Laundry', 'TV', 'Gym', 'AC', 'Wifi', 'Balcony'],
-        areas: ['Downtown', 'Midtown', 'East Village', 'Show', 'Upper East', 'Upper West']
+        areas: ['Downtown', 'Midtown', 'East Village', 'Show', 'Upper East', 'Upper West'],
+        imagesPath : ''
     };
 
 }
@@ -28,6 +32,10 @@ if( typeof window.bot_data !== 'undefined' ){
 
 const App = ( {selections }) => {
 
+    const getFeedbackString = ( postId ) => {
+        return `Thanks for your enquiry. We will get back to you as soon as possible. Your reference number #${postId}`;
+    }
+
     const handleNewUserMessage = (newMessage) => {
         var data = {
             'action': 'get_lead',
@@ -35,10 +43,13 @@ const App = ( {selections }) => {
             'message' : newMessage
         };
         if( typeof window.jQuery !== 'undefined'){
+
             window.jQuery.post(bot_data.ajax_url, data, (response) => {
                 let jsonResponse = JSON.parse( response );
                 selections.post_id = jsonResponse.post_id;
+                addResponseMessage( getFeedbackString( jsonResponse.post_id ) );
             });
+
         } else {
             alert(JSON.stringify(data));
         }
